@@ -144,5 +144,49 @@ def uDecisionTree():
     print('Computational Time :', stopTimer - startTimer)
     print('----------- END OF UNTUNED DECISION TREE COMPUTATION -----------')
 
+def decisionTree():
+    print('\n----------- STARTING TUNED DECISION TREE COMPUTATION -----------')
+    startTimer = time.time()
+    params = {
+        'max_depth': [2, 3, 5, 10, 20],
+        'min_samples_leaf': [5, 10, 20, 50, 100, 150],
+        'criterion': ["gini", "entropy"]
+    }
+
+    grid_search = GridSearchCV(estimator=DecisionTreeClassifier(), param_grid=params,cv=5, n_jobs=1, verbose=1, scoring = "accuracy")
+    grid_search.fit(train_x, train_y)
+    # Best Parameters
+    print(grid_search.best_params_)
+    # grid_search.best_score_
+
+    dt_score = pd.DataFrame(grid_search.cv_results_)
+
+    dt_tuned = DecisionTreeClassifier(**grid_search.best_params_)
+    dt_tuned.fit(train_x,train_y)
+    stopTimer = time.time()
+    dtAccTuneScore = dt_tuned.score(test_x,test_y)
+    print('Test Accuracy Score: ',round(dtAccTuneScore*100,2),'%')
+    print('Computational Time :', stopTimer - startTimer)
+    print('----------- END OF TUNED DECISION TREE COMPUTATION -----------')
+
+def crossModel():
+    mn=[]
+    accuracy=[]
+    std=[]
+    modelClassifier=['kNN','Decision Tree']
+    models=[KNeighborsClassifier(n_neighbors=10),DecisionTreeClassifier()]
+    for i in models:
+        model = i
+        cv_result = cross_val_score(model,train_x,train_y, cv = KFold(n_splits=10), scoring = "accuracy")
+        cv_result=cv_result
+        mn.append(round(cv_result.mean()*100,2))
+        std.append(round(cv_result.std()*100,2))
+        accuracy.append(cv_result)
+    models_dataframe=pd.DataFrame({'CV Mean':mn,'Std':std},index=modelClassifier)     
+    print('\n----------- STD/MEAN Calculation between models -----------')  
+    print(models_dataframe)
+
 predictKnn()
 uDecisionTree()
+decisionTree()
+crossModel()

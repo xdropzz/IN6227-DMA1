@@ -130,5 +130,19 @@ def predictKnn():
     print('\nTotal Compute Time:', time.time()-startTimer)
     print('----------- END KNN COMPUTATION -----------')
 
+def uDecisionTree():
+    print('\n----------- STARTING UNTUNED DECISION TREE COMPUTATION -----------')
+    startTimer = time.time()
+    dt_model = DecisionTreeClassifier(random_state = 42)
+    dt_model.fit(train_x, train_y)
+    dt_pred = dt_model.predict(test_x)
+    stopTimer = time.time()
+    print('Train Accuracy score:', round(dt_model.score(train_x, train_y) * 100, 2),'%')
+    print('Test Accuracy score:', round(accuracy_score(test_y, dt_pred) * 100, 2),'%')
+    print("F1 Score: ", round(f1_score(test_y,dt_pred) * 100,2),'%')
+    print("MSE: ", round(mean_squared_error(test_y,dt_pred) * 100,2),'%')
+    print('Computational Time :', stopTimer - startTimer)
+    print('----------- END OF UNTUNED DECISION TREE COMPUTATION -----------')
 
 predictKnn()
+uDecisionTree()

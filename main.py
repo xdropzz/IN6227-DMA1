@@ -20,14 +20,12 @@ columns = ["age", "workclass", "fnlwgt", "education", "education-num","marital-s
           "race", "sex", "capital-gain", "capital-loss", "hours-per-week", "native-country", "income"]
 
 train = pd.read_csv('data/adult.data', names=columns, sep=' *, *', engine='python', na_values='?')
-test = pd.read_csv('data/adult.test', names=columns, sep=' *, *', engine='python', skiprows=1, na_values='?')
-train.head()
-test.head()
-
 train[train=='?']=np.nan
 train = train.dropna(axis=0)
+test = pd.read_csv('data/adult.test', names=columns, sep=' *, *', engine='python', skiprows=1, na_values='?')
 test[test=='?']=np.nan
 test = test.dropna(axis=0)
+
 cat_attributes = train.select_dtypes(include=['object'])
 # cat_attributes.describe()
 num_attributes = train.select_dtypes(include=['int'])
@@ -64,14 +62,14 @@ test[['native-country']] = MinMaxScaler().fit_transform(test[['native-country']]
 test[numerical] = MinMaxScaler().fit_transform(test[numerical])
 
 
-train_X=train.drop(["fnlwgt","education"],axis=1)
-test_X=test.drop(["fnlwgt","education"],axis=1)
+train_x=train.drop(["fnlwgt","education"],axis=1)
+test_x=test.drop(["fnlwgt","education"],axis=1)
 
 train_y=train["income"]
 test_y=test["income"]
 
-del train_X["income"]
-del test_X["income"]
+del train_x["income"]
+del test_x["income"]
 
 print('\n----------- STARTING DATA PRE-PROCESSING -----------')
 print('Time taken to pre-process data', time.time() - startTimer)
@@ -97,17 +95,17 @@ def predictKnn():
     error=[]
     for i in range(15,36,1):
         knn_model = KNeighborsClassifier(n_neighbors=i)
-        knn_model.fit(train_X,train_y)
-        knn_pred = knn_model.predict(test_X)
+        knn_model.fit(train_x,train_y)
+        knn_pred = knn_model.predict(test_x)
         error.append(np.mean(knn_pred != test_y))
         if(round(mean_squared_error(test_y, knn_pred) * 100,4)<compareValue): 
             compareValue=round(mean_squared_error(test_y, knn_pred) * 100,4) 
             kvalue = i
     stopTimer = time.time()
     knn_model = KNeighborsClassifier(n_neighbors=kvalue)
-    knn_model.fit(train_X,train_y)
-    knn_pred = knn_model.predict(test_X)
-    print('Train Accuracy Score = ', round(knn_model.score(train_X, train_y) * 100, 2),"%")
+    knn_model.fit(train_x,train_y)
+    knn_pred = knn_model.predict(test_x)
+    print('Train Accuracy Score = ', round(knn_model.score(train_x, train_y) * 100, 2),"%")
     print("Test Accuracy Score:", round(accuracy_score(test_y, knn_pred) * 100, 2),"%")
     print("F1 Score: ", round(f1_score(test_y, knn_pred) * 100,2),"%")
     print("MSE: ", round(mean_squared_error(test_y, knn_pred) * 100,2),"%")
@@ -121,13 +119,13 @@ def predictKnn():
     dist_calc = ['euclidean', 'manhattan']
     for i in dist_calc:
         model = KNeighborsClassifier(kvalue, metric = i) 
-        model.fit(train_X, train_y)
-        metric_accuracy_training[i] = model.score(train_X, train_y)
-        metric_accuracy_testing[i] = model.score(test_X, test_y) 
+        model.fit(train_x, train_y)
+        metric_accuracy_training[i] = model.score(train_x, train_y)
+        metric_accuracy_testing[i] = model.score(test_x, test_y) 
         stopTimer = time.time()
         print('\nCalculation : ', i)
-        print('Training Accuracy :  ', round(knn_model.score(train_X, train_y)*100, 2),'%')
-        print('Testing Accuracy : ', round(knn_model.score(test_X, test_y)*100, 2),'%')
+        print('Training Accuracy :  ', round(knn_model.score(train_x, train_y)*100, 2),'%')
+        print('Testing Accuracy : ', round(knn_model.score(test_x, test_y)*100, 2),'%')
         print('Computational Time :', stopTimer - startTimer)
     print('\nTotal Compute Time:', time.time()-startTimer)
     print('----------- END KNN COMPUTATION -----------')
